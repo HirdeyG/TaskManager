@@ -1,0 +1,125 @@
+﻿<!DOCTYPE HTML>
+@functions{
+    string messageStyle(MessageType messageType){
+        if(messageType == MessageType.Error){
+            return "alert-danger";
+        }
+        else if (messageType == MessageType.Warning)
+        {
+            return "alert-warning";
+        }
+
+        return "alert-info";
+    }
+}
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<!-- Apple devices fullscreen -->
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<!-- Apple devices fullscreen -->
+	<meta names="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    @RenderSection("header", required: false)
+    <title>@ViewBag.PageTitle</title>
+
+    <link rel="shortcut 
+        " type="image/icon" href="@Url.Content("~/favicon.ico")"  />
+    
+    
+    @Styles.Render("~/content/css/bundled_css")
+    @Styles.Render("~/content/css/plugins/jquery-ui/cupertino/jquery-ui_bundled")
+    @Scripts.Render("~/content/js/bundled_js")
+</head>
+<body class="contrast-teal">
+    <header>
+        <nav class='navbar navbar-default'>
+            <a class='navbar-brand' href='@Url.Content("~/")'>
+              <span class="logo">@AppSettings.ApplicationName</span>
+              <span class="logo-xs">@AppSettings.ApplicationNameAbbreviated</span>
+            </a>
+        </nav>
+    </header>
+
+	<div id="wrapper">
+        <section id="content" style="margin-left:0px !important">
+            <div class='container'>
+                <div class='row' id='content-wrapper'>
+                    <br />
+                    <div class="col-sm-12">
+                        @if (ViewBag.UIMessage != null && ViewBag.UIMessage.MessageType != MessageType.Information)
+                        { 
+                            <div class="alert @messageStyle(ViewBag.UIMessage.MessageType)">
+						        <button type="button" class="close" data-dismiss="alert">×</button>
+						        <strong>@ViewBag.UIMessage.Title</strong> 
+                                <p>@ViewBag.UIMessage.Description</p>
+					        </div>  
+                        }
+                        else if (ViewBag.UIMessage != null && ViewBag.UIMessage.MessageType == MessageType.Information)
+                        {
+                            <div class="info-message hide" >
+						        <button type="button" class="close" data-dismiss="alert">×</button>
+						        <strong class="info-title">@ViewBag.UIMessage.Title</strong> 
+                                <p class="info-content">@ViewBag.UIMessage.Description</p>
+					        </div>  
+                        }
+
+
+                        @RenderBody()
+
+                    </div>
+                </div>
+            </div>
+        </section>
+	</div>
+    
+    <div class="modal fade in" id="block-modal" tabindex="-1" style="display: none;" aria-hidden="false">    
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" >
+                    <h4 class="modal-title" id="block-modal-title">Processing Request</h4>
+                </div>
+                <div class="modal-body" id="block-modal-body">
+                    <p>Please wait…</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    @Scripts.Render("~/content/js/bundled_js")
+    <script type="text/javascript">
+
+        function loadConfirmationStats() {
+            var currentStyle = $('#currentQuarterPercentageIcon').attr('class');
+            $('#currentQuarterPercentageIcon').attr('class', 'icon-refresh icon-spin');
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetCurrentPeriodStats","Journal")',
+                success: function (data) {
+                    updateConfirmationStats(data, currentStyle);
+                },
+                error: function (data) {
+                    alert(data)
+                }
+            });
+        }
+
+        function updateConfirmationStats(data, style) {
+            $('#currentQuarterPercentageIcon').attr('class', style);
+            $('#currentQuarterPercentage').html((Math.round(data.PercentageFinished * 10000) / 100).toFixed(2) + ' %');
+        }
+
+        $(function () {
+            $(".info-message").each(function () {
+                var title = $(this).find('.info-title').html();
+                var content = $(this).find('.info-content').html();
+                addNotification(title, content, false, 1000);
+            });
+        });
+
+
+
+    </script>
+    @RenderSection("javascripts", required: false)
+</body>
+</html>

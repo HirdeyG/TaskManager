@@ -1,0 +1,165 @@
+﻿@model TaskVM
+
+<script src="~/Content/js/summernote.min.js"></script>
+<link href="~/Content/css/summernote.css" rel="stylesheet" />
+@section javascripts{
+    <script type="text/javascript">
+        $(function () {
+            $('#summernote').summernote({
+                toolbar: [
+                  // [groupName, [list of button]]
+                  ['style', ['bold', 'italic', 'underline', 'clear']],
+                  ['font', ['strikethrough', 'superscript', 'subscript']],
+                  ['fontsize', ['fontsize']],
+                  ['color', ['color']],
+                  ['para', ['ul', 'ol', 'paragraph']],
+                  ['height', ['height']],
+                  ['link', ['linkDialogShow', 'unlink']]
+                ]
+            });
+            $('#summernote1').summernote({
+                toolbar: [
+                  // [groupName, [list of button]]
+                  ['style', ['bold', 'italic', 'underline', 'clear']],
+                  ['font', ['strikethrough', 'superscript', 'subscript']],
+                  ['fontsize', ['fontsize']],
+                  ['color', ['color']],
+                  ['para', ['ul', 'ol', 'paragraph']],
+                  ['height', ['height']],
+                  ['link', ['linkDialogShow', 'unlink']]
+                ]
+            });
+            $('#summernote1').summernote('disable');
+            $('.date-control').datepicker();
+            
+            
+            
+        });
+    </script>
+}
+
+
+<div class="row">
+    <div class="col-md-12">
+        @if (Model.OriginalData.TaskStatus.Oid == TaskStatusExtension.Completed)
+        {
+            <div class="alert alert-success col-md-7 col-sm-11">
+                <h4><i class="icon-ok-sign"></i> Completed</h4>
+                <p>Task was completed by @Model.OriginalData.LastUpdatedBy on @string.Format("{0:d}", Model.OriginalData.Audit.UpdatedDate)</p>
+            </div>
+        }
+        else if (Model.OriginalData.TaskStatus.Oid == TaskStatusExtension.Cancelled)
+        {
+            <div class="alert alert-danger col-md-7 col-sm-11">
+                <h4><i class="icon-remove-sign"></i> Cancelled</h4>
+                <p>Task was cancelled by @Model.OriginalData.LastUpdatedBy on @string.Format("{0:d}", Model.OriginalData.Audit.UpdatedDate)</p>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        @using (Html.BeginForm("Task", "Home", FormMethod.Post, new { @class = "form form-horizontal" }))
+        {
+            @Html.HiddenFor(m => m.OriginalData.Oid)
+            @Html.HiddenFor(m => m.ReturnUrl)
+            <div class="form-group">
+                <label class="col-md-2 col-sm-3 control-label" for="inputText1">Title</label>
+                <div class="col-md-5 col-sm-8">
+                    <div style="padding-top:7px;">@Model.OriginalData.TaskDefinition.Name</div>
+                </div>
+            </div>
+        <div class="form-group">
+            <label class="col-md-2 col-sm-3 control-label" for="inputText1">Description</label>
+            <div class="col-md-8 col-sm-12">
+                <div style="padding-top:7px;">
+                    @Html.TextAreaFor(m => m.OriginalData.TaskDefinition.Description, new { @class = "form-control", rows = "10", id = "summernote1", disabled = "disabled" })
+                </div>
+            </div>
+        </div>
+        <hr class="hr-normal">
+        <div class="form-group">
+            <label class="col-md-2 col-sm-3 control-label">Owner</label>
+            <div class="col-md-5 col-sm-8">
+                <div style="padding-top:7px;">@Model.OriginalData.TaskDefinition.Owner.FullName</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-2 col-sm-3 control-label">Responsible Person(s)</label>
+            <div class="col-md-5 col-sm-8">
+                <div style="padding-top:7px;">
+                    <ul>
+                        @foreach (Person subscriber in Model.NotificationList)
+                            {
+                            <li>@subscriber.FullName</li>
+                            }
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <hr class="hr-normal">
+        <div class="form-group">
+            <label class="col-md-2 col-sm-3 control-label">Due Date</label>
+            <div class="col-md-5 col-sm-8">
+                @if (Model.OriginalData.TaskStatus.Oid == 1)
+                    {
+                    @Html.TextBox("DueDate", Model.DueDate.ToString("d"), new { @class = "form-control date-control", style = "width:", id = "duedate-field" })
+                    @Html.ValidationMessageFor(m => m.DueDate)
+                    }
+                    else
+                    {
+                    <div class="form-control" disabled="disabled">@Model.DueDate.ToString("d")</div>
+                    }
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-2 col-sm-3 control-label" for="inputText1">Comments</label>
+            <div class="col-md-8 col-sm-12">
+                @*<div id="summernote"><p>Hello Summernote</p></div>*@
+                @if (Model.OriginalData.TaskStatus.Oid == 1)
+                    {
+                    @Html.TextAreaFor(m => m.Comments, new { @class = "form-control", rows = "10", id = "summernote" })
+                    @Html.ValidationMessageFor(m => m.Comments)
+                    }
+                    else
+                    {
+                    @Html.TextAreaFor(m => m.Comments, new { @class = "form-control", rows = "10",id = "summernote", disabled = "disabled" })
+                    }
+
+            </div>
+        </div>
+        <div class="form-actions form-actions-padding-sm form-actions-padding-md form-actions-padding-lg" style="margin-bottom: 0;">
+            @if (Model.OriginalData.TaskStatus.Oid == 1)
+                {
+                <button class="btn btn-primary" type="submit" name="TaskStatusId" value="1">
+                    <i class="icon-ok-sign"></i>
+                    Save Changes
+                </button>
+                <button class="btn" type="button" onclick="location='@Model.ReturnUrl'">
+                    Close
+                </button>
+                <span style="margin:0px 20px;color:#ccc">|</span>
+                <button class="btn btn-success" type="submit" name="TaskStatusId" value="2">
+                    <i class="icon-ok-sign"></i>
+                    Completed
+                </button>
+                <button class="btn btn-danger" type="submit" name="TaskStatusId" value="3">
+                    <i class="icon-remove-sign"></i>
+                    Cancelled
+                </button>
+                }
+                else
+                {
+                <button class="btn" type="button" onclick="location='@Model.ReturnUrl'">
+                    Close
+                </button>
+
+                }
+
+        </div>
+        }
+    </div>
+    </div>
+

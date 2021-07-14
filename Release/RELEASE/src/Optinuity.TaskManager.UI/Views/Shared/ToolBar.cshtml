@@ -1,0 +1,80 @@
+﻿<script type="text/javascript">
+    $(document).ready(function () {
+        $('#switchUserLink').qtip({
+            content: {
+                title: { text: 'Select User', button: 'Close' },
+                text: '<div>loading please wait ....</div>',
+                ajax: {
+                    url: '@Url.Action("EmployeeList", "EmployeeDelegate")',
+                    data: { "name": new Date() },
+                    type: 'POST'
+                }
+            },
+            position: {
+                my: 'top center',
+                at: 'bottom center',
+                viewport: $(window)
+            },
+            style: { classes: 'ui-tooltip-shadow ui-tooltip-blue', tip: { corner: true }},
+            show: { event: 'mouseenter', solo: false },
+            hide: { fixed: true, delay: 1000 }
+        });
+
+        $('#toolBarHelp').qtip({
+            content: {
+                title: { text: 'Help', button: 'Close' },
+                text: $('#toolBarHelpDetails').html()
+            },
+            position: {
+                my: 'top center',
+                at: 'bottom center',
+                viewport: $(window)
+            },
+            style: { classes: 'ui-tooltip-shadow ui-tooltip-blue', tip: { corner: true} },
+            show: { event: 'mouseenter', solo: false },
+            hide: { fixed: true, delay: 1000 }
+        });
+    });
+</script>
+<div style="display:none;" id="toolBarHelpDetails">
+    @*<div style="margin:15px;"><a href="@Url.Content("~/help.pdf")" target="_blank"><img style=" vertical-align:top; padding-right:5px;" src="@Url.Content("~/Content/Images/pdf_document.png")" />User’s Manual</a></div>*@
+    <div style="margin:15px;"><a href="mailto:test@mbia.com?subject=eRecruitment question."><img style=" vertical-align:top; padding-right:5px;" src="@Url.Content("~/Content/Images/question.png")" />Ask Question</a></div>
+</div>
+<table id="contextMenu" cellpadding="0" cellspacing="0" border="0" >
+    <tr>
+        <td width="*">
+            <div class="toolBar">
+                <table cellpadding="0" cellspacing="0" >
+                <tr>
+                    @if (ViewBag.UICommands != null)
+                    {
+                        foreach (Optinuity.Framework.UI.UICommand command in ViewBag.UICommands)
+                        {
+                        <td>
+                            <a href="@command.Url" title="@command.Title" 
+                                @foreach (string key in command.Attributes.Keys)
+                                {
+                                    @(Html.Raw(key + "=\"" + command.Attributes[key] + "\" "))
+                                }
+                            >
+                            <img src="@Url.Content("~/Content/Images/" + command.ImageName)" alt="" />@command.Text
+                            </a>
+                        </td>
+                        }
+                    }
+                </tr>
+                
+                </table>
+            </div>
+        </td>
+        <td class="searchHolder">
+            <div class="toolBar" >
+                <ul>
+                    <li style="float:right;"><a href="javascript:void(0)" title="Help" id="toolBarHelp"><img src="@Url.Content("~/Content/Images/help.gif")" 
+                            style="border:0px;" />Help</a></li>
+                    
+                </ul>
+            </div>
+        </td>
+    </tr>
+</table>

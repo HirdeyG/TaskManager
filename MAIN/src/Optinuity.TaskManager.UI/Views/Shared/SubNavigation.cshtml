@@ -1,0 +1,35 @@
+﻿@functions{
+    private Tab getUltimateParent(Tab tab)
+    {
+        if (tab.Parent == null)
+            return tab;
+
+        return getUltimateParent(tab.Parent);
+    }
+}
+@{
+    Tab ultimateParent = null;
+    
+    if (ViewBag.ActiveTab != null)
+    {
+        ultimateParent = getUltimateParent(ViewBag.ActiveTab);
+    }
+}
+
+@if (ultimateParent != null && ultimateParent.Children != null)
+{ 
+    <div class="subnav">
+        <div class="subnav-title">
+	        <a href="#" class="toggle-subnav"><i class="icon-angle-down"></i><span>@ultimateParent.Name</span></a>
+        </div>
+        
+        <ul class="subnav-menu" style="display: block;">
+            @foreach (Optinuity.Framework.UI.Tab tab in ultimateParent.Children.Where(row => row.Hidden == false))
+            {
+                <li @(Html.Raw(tab.IsSelected ? "class=\"active\"" : "")) >
+                    <a href="@Url.Content("~/" + tab.Url)" @tab.LinkAttributes >@tab.Name</a>
+                </li>
+            }
+        </ul>
+    </div>
+}

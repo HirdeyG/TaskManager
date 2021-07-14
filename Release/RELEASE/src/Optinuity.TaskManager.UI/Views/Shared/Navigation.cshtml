@@ -1,0 +1,38 @@
+﻿@{
+    IList<Tab> authorizedTabs = ViewBag.AuthorizedTabs;
+    
+}
+
+@foreach (Optinuity.Framework.UI.Tab tab in authorizedTabs.Where(row => row.Hidden == false))
+{
+      <li @(Html.Raw(tab.IsSelected? "class=\"active\"":"")) >
+            @if (tab.IsEmptyHeader){
+                <a href="#" data-toggle="dropdown" class='dropdown-collapse' >
+                    <i class='icon-book'></i>
+                    <span>@tab.Name</span>
+			        <i class='icon-angle-down angle-down'></i>
+                </a>
+            }
+            else
+            {
+                <a href="@Url.Content("~/" + tab.Url )" @tab.LinkAttributes>
+                    <i class='@tab.IconName'></i>
+                    <span>@tab.Name</span>
+                </a>
+            }
+
+            @if (tab.Children != null && tab.Children.Count > 0){ 
+            <ul class="nav nav-stacked @(tab.IsSelected? "in":"")">
+            @foreach (Optinuity.Framework.UI.Tab subTab in tab.Children.Where(row => row.Hidden == false))
+            { 
+                <li @(Html.Raw(subTab.IsSelected ? "class=\"active\"" : ""))>
+                    <a href="@Url.Content("~/" + subTab.Url)" @subTab.LinkAttributes >
+                        <i class='@subTab.IconName'></i>
+                        <span>@subTab.Name</span>
+                    </a>
+                </li>
+            }
+            </ul>
+            }
+      </li>
+}

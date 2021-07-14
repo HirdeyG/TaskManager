@@ -1,0 +1,58 @@
+﻿@media print {
+    #navigation , 
+    .breadcrumbs, 
+    #page-commands,
+    .no-print,
+    .box-title .actions,
+    #footer
+    {
+        display:none;
+    }
+
+    a:link:after,
+    a:visited:after {
+      content: "" !important;
+    }
+
+    .page-header { margin:5px 0px !important;}
+    #content {
+        padding: 0px !important;
+    }
+
+    .table-bordered,
+    .table-bordered th,
+    .table-bordered td
+     {
+        border-color: #000  !important;
+     }
+
+    .table-bordered tr, .table-bordered td
+    { 
+        page-break-inside:avoid; page-break-after:auto 
+    }
+
+    div.box div.box-collapsed {
+        display:block;
+    }
+
+    .responsive-table .scrollable-area {
+        overflow:visible;
+        overflow-y:visible;
+    }
+
+
+    .box-title, 
+    .pagination ul > li > a, 
+    .pagination ul > li > span,
+    .box.box-bordered .box-content,
+    .form-bordered,
+    .control-group,
+    .controls,
+    .box-bordered ,
+    {
+        border-color: #000  !important;
+        
+    }
+
+    
+}

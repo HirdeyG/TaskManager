@@ -1,0 +1,110 @@
+﻿@model IPagination 
+@{
+    int pageCount = (int)Math.Ceiling(Model.TotalItems / (double)Model.PageSize);
+    int nrOfPagesToDisplay = 5;
+
+    int lastRow = (Model.PageNumber * Model.PageSize);
+    int firstRow = lastRow - Model.PageSize + 1;
+
+    if (lastRow > Model.TotalItems){
+        lastRow = Model.TotalItems;
+    }
+
+    int start = 1;
+    int end = pageCount;
+
+    if (pageCount > nrOfPagesToDisplay)
+    {
+        int middle = (int)Math.Ceiling(nrOfPagesToDisplay / 2d) - 1;
+        int below = (Model.PageNumber - middle);
+        int above = (Model.PageNumber + middle);
+
+        if (below < middle +1)
+        {
+            above = nrOfPagesToDisplay;
+            below = 1;
+        }
+        else if (above > (pageCount - middle + 1))
+        {
+            above = pageCount;
+            below = (pageCount - nrOfPagesToDisplay);
+        }
+
+        start = below;
+        end = above;
+    }
+
+}
+
+<div class="pull-right">
+	
+    @if (Model.PageSize == int.MaxValue)
+    {
+        <ul class="pagination">
+            <li>
+                <a href="@Url.RemoveQueryString("pageSize")"><i class="icon-check"></i> Show All</a>
+            </li>
+            <li><span>Showing @firstRow to @lastRow of @Model.TotalItems entries</span></li>
+        </ul>
+    }
+    else
+    {
+    <ul class="pagination">
+        <li>
+            <a href="@Url.AppendQuery("pageSize",int.MaxValue,"page",null)"><i class="icon-check-empty"></i> Show All</a>
+        </li>
+    </ul>
+    
+    <ul class="pagination">
+		        
+        @if (Model.PageNumber > 1)
+        {
+            <li><a href="@CommonHelpers.AppendQuery("page", 1)" title="First"><i class="icon-double-angle-left"></i></a></li>
+            <li><a href="@CommonHelpers.AppendQuery("page", Model.PageNumber -1)" title=""><i class="icon-angle-left"></i></a></li>
+        }
+        else
+        {
+            <li><span class="text-muted"><i class="icon-double-angle-left"></i></span></li>
+            <li><span class="text-muted"><i class="icon-angle-left"></i></span></li>
+        }
+
+        @if (start > 1)
+        { 
+            <li><span>...</span></li>
+        }
+        
+        @for (int i = start; i <= end; i++)
+        {
+            if (i == Model.PageNumber)
+            {
+                <li class="active"><span title="Showing @firstRow to @lastRow of @Model.TotalItems entries">@i</span></li>
+            }
+            else
+            {
+                <li><a href="@CommonHelpers.AppendQuery("page", i)">@i</a></li>
+            }
+        }
+
+        @if (end < (pageCount))
+        {
+            <li><span>...</span></li>
+        }
+
+        
+        
+        @if (Model.PageNumber < pageCount)
+        {
+            <li><a href="@CommonHelpers.AppendQuery("page", Model.PageNumber + 1)"><i class="icon-angle-right"></i></a></li>
+            <li><a href="@CommonHelpers.AppendQuery("page", pageCount)"><i class="icon-double-angle-right"></i></a></li>
+        }
+        else
+        {
+            <li><span class="text-muted"><i class="icon-angle-right"></i></span></li>
+            <li><span class="text-muted"><i class="icon-double-angle-right"></i></span></li>
+        }
+
+		
+	</ul>
+
+    }
+</div>

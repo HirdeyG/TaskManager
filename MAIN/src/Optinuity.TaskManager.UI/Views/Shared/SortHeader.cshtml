@@ -1,0 +1,22 @@
+﻿@model GridSortOptions 
+           
+@if (Model.Column == @ViewBag.PropertyName)
+{
+    if (Model.Direction == Optinuity.Framework.UI.SortDirection.Ascending)
+    {
+        @*<th class="sorting_asc @ViewBag.Class"><a href="@CommonHelpers.AppendQuery("sort", ViewBag.PropertyName + "D")">@Html.Raw(ViewBag.HeaderText)</a></th>*@
+        <th class="@ViewBag.Class"><div class="sorting_asc"></div><a href="@CommonHelpers.AppendQuery("sort", ViewBag.PropertyName + "D")">@Html.Raw(ViewBag.HeaderText)</a></th>
+        
+    }
+    else
+    {
+        @*<th class="sorting_desc @ViewBag.Class"><a href="@CommonHelpers.AppendQuery("sort", ViewBag.PropertyName + "A")">@Html.Raw(ViewBag.HeaderText)</a></th>*@
+        <th class="@ViewBag.Class"><div class="sorting_desc"></div><a href="@CommonHelpers.AppendQuery("sort", ViewBag.PropertyName + "A")">@Html.Raw(ViewBag.HeaderText)</a></th>
+        
+    }
+}
+else
+{
+    @*<th class="sorting @ViewBag.Class"><a href="@CommonHelpers.AppendQuery("sort", ViewBag.PropertyName + "A")">@Html.Raw(ViewBag.HeaderText)</a></th>*@
+    <th class="@ViewBag.Class"><div class="sorting"></div><a href="@CommonHelpers.AppendQuery("sort", ViewBag.PropertyName + "A")">@Html.Raw(ViewBag.HeaderText)</a></th>
+}

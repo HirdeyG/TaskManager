@@ -1,0 +1,174 @@
+﻿@model TaskListingVM
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$('#taskIdAll').hide();
+        try {
+            $("#taskIdSubOrdinates").change(function () {
+                FillTasks();
+            });
+            function FillTasks() {
+                var empId = $('#taskIdSubOrdinates').val();
+                $.ajax({
+                    //url: '/Home/FillTask',
+                    url:  "@Url.Action("FillTask", "Home")",
+                    type: "GET",
+                    dataType: "JSON",
+                    data: { EmployeeId: empId},
+                    success: function (tasks) {
+                        $("#taskId").html(""); // clear before appending new list
+                        $.each(tasks, function (i, task) {
+                            $("#taskId").append(
+                                $('<option></option>').val(task.Value).html(task.Text));
+                        })
+                    }
+                });
+            }
+        }
+        catch (excpetion) {
+        }
+    });
+
+</script>
+
+<div class="row">
+    <div class="col-sm-12 box">
+        <div class="box-header default-background">
+            <div class="title">Search</div>
+            <div class="actions">
+                <a class="btn box-collapse btn-xs btn-link" href="#"><i></i></a>
+            </div>
+        </div>
+        <div class="box-content">
+            @*@using (Html.BeginForm("Index", "Home", FormMethod.Get, new { id = "searchForm", @class = "form form-horizontal form-column form-bordered .form-condensed", onSubmit = "return showBlockModal('Searching','Please Wait...')" }))*@
+            @using (Html.BeginForm("Index", "Home", FormMethod.Get, new { id = "searchForm", @class = "form form-horizontal form-column form-bordered .form-condensed"}))
+            {
+                @Html.Hidden("pageSize", Model.PageSize)
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="inputText1">Status</label>
+                            <div class="col-md-8">
+                                @Html.DropDownList("status", @Model.StatusList, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="inputText1">Due Date</label>
+                            <div class="col-md-8">
+                                @Html.DropDownList("dueBy", @Model.DueByList, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="inputText1">Responsible</label>
+                            <div class="col-md-8">
+                                @Html.DropDownList("taskIdSubOrdinates", @Model.TaskDefinitionListSubOrdinates, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="inputText1">Task</label>
+                            <div class="col-md-8">
+                                @Html.DropDownList("taskId", @Model.TaskDefinitionList, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="inputText1">Task Name/Desc</label>
+                            <div class="col-md-8">
+                                <input type="text" id="txtSearchDesc" name="txtSearchDesc" class="form-control" value="@ViewBag.txtSearchDesc" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions form-actions-padding-sm">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button class="btn btn-primary" type="submit" name="output" value="html">
+                                <i class="icon-search"></i>
+                                Search
+                            </button>
+                            <button class="btn btn-success pull-right" type="submit" name="output" value="excel">
+                                <i class="icon-file-text"></i>
+                                Download Excel
+                            </button>
+                            <button class="btn" type="button" onclick="location='@Url.Action("Index")'">Clear</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<table class="table table-bordered">
+    <tr>
+        <th style="width:20px;">&nbsp;</th>
+        <th>Task Name/Description</th>
+        @{Html.RenderPartial("SortHeader", new ViewDataDictionary(new ViewDataDictionary() { { "HeaderText", "Due Date" }, { "PropertyName", "DueDate" }, { "Class", "" } }) { Model = Model.GridSortOptions });}
+        <th>Status</th>
+        <th>Owner</th>
+    </tr>
+
+    @foreach (Task row in Model.PagedList)
+    {
+        <tr>
+            <td><a class="btn" href="@Url.Action("Task", new {id=row.Oid,returnUrl=Model.CurrentUrl })"><i class="icon-edit"></i></a></td>
+            <td>
+                @row.TaskDefinition.Name
+                <small>
+                    <br />
+                    @Html.Raw(row.TaskDefinition.Description)
+                </small>
+            </td>
+
+            <td>@string.Format("{0:d}", row.DueDate)</td>
+            <td>
+
+                @if (row.TaskStatus.Oid != TaskStatusExtension.Pending)
+                {
+                    <span title="@row.Comments" style="white-space:nowrap;">
+                        @if (row.TaskStatus.Oid == TaskStatusExtension.Completed)
+                        {
+                            <i class="text-success icon-ok-sign"></i>
+                        }
+                        else
+                        {
+                            <i class="text-danger icon-remove-sign"></i>
+                        }
+                        @row.TaskStatus
+                    </span>
+                    <br />
+                    <small style="white-space:nowrap;" title="@row.Audit.UpdatedDate">By @((row.LastUpdatedBy == null) ? "" : row.LastUpdatedBy.FullName)</small>
+                }
+                else
+                {
+                    if (row.DueDate <= DateTime.Now.AddDays(-1))
+                    {
+                        <span>Overdue</span>
+                    }
+                    else
+                    {
+                        @row.TaskStatus
+                    }
+                }
+
+            </td>
+            <td style="white-space:nowrap;">@row.TaskDefinition.Owner.FullName</td>
+
+        </tr>
+    }
+</table>
+@{Html.RenderPartial("Paginator", Model.PagedList);}
+
+
+
