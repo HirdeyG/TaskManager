@@ -13,7 +13,7 @@ jobs:
     # https://github.com/marketplace/actions/s3-sync 
     steps:
       - uses: actions/checkout@master
-      - uses: jakejarvis/s3-sync-action@master
+      - uses: jakejarvis/s3-sync-action@master --acl private
         with:
           args: --acl public-read --follow-symlinks --delete --exclude '.git*/*' --exclude '.github/*'
         env:
